@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Keyword Cloud Visualizer</title>
+  <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+  <link href="https://unpkg.com/vis-network@9.1.2/styles/vis-network.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f7fb;
+      text-align: center;
+    }
+    header {
+      background: #4a90e2;
+      color: white;
+      padding: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #networkStrategy, #networkMatching, #networkFrequency {
+      width: 100%;
+      height: 800px;
+      border: 1px solid #ccc;
+      background: white;
+      margin-top: 40px;
+    }
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    th {
+      background: #4a90e2;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>☁️ Keyword Cloud Visualizer</h1>
+  </header>
+
+  <input type="date" id="datePicker" />
+  <button onclick="generate()">Generate</button>
+
+  <div id="networkStrategy"></div>
+  <h2>Strategy Keyword Table</h2>
+  <div id="strategyTableContainer"></div>
+
+  <div id="networkMatching"></div>
+  <h2>Matching Keyword Table</h2>
+  <div id="matchingTableContainer"></div>
+
+  <div id="networkFrequency"></div>
+  <h2>Search Frequency Match Table</h2>
+  <div id="frequencyTableContainer"></div>
+
+  <script>
+    let network1, nodes1, edges1;
+    let network2, nodes2, edges2;
+    let network3, nodes3, edges3;
+    let mainDate = "";
+    let dataCache = {}, frequencyResults = [];
+
+    function generate() {
+      const date = document.getElementById("datePicker").value;
+      if (!date) return alert("Please select a date.");
+      mainDate = date;
+
+      fetch(`/keywords/${date}`)
+        .then(res => res.json())
+        .then(data => {
+          dataCache = data;
+          renderStrategyCloud();
+        });
+
+      fetch("/matching_keywords", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date })
+      })
+      .then(res => res.json())
+      .then(data => {
+        renderMatchingCloud(data.top_keywords);
+      });
+
+      fetch("/get_data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyword: "", date })
+      })
+      .then(res => res.json())
+      .then(data => {
+        frequencyResults = data.results || [];
+        const topKeywords = frequencyResults.sort((a, b) => b.count - a.count).slice(0, 20);
+        renderFrequencyCloud(topKeywords);
+      });
+    }
+
+    function renderStrategyCloud() {
+      nodes1 = new vis.DataSet([
+        { id: 0, label: "GOOGLE SEARCH\nVOLUME", shape: "image", image: "/static/cloud.png", size: 70,
+          font: { color: "#333", size: 20, vadjust: -76, bold: true } },
+        { id: 1, label: "Primary", shape: "image", image: "/static/cloud.png", size: 50,
+          font: { color: "#333", size: 16, vadjust: -55, bold: true }, role: "primary-root" },
+        { id: 2, label: "Secondary", shape: "image", image: "/static/cloud.png", size: 50,
+          font: { color: "#aef468", size: 16, vadjust: -55, bold: true }, role: "secondary-root" }
+      ]);
+
+      edges1 = new vis.DataSet([
+        { from: 0, to: 1 },
+        { from: 0, to: 2 }
+      ]);
+
+      const container = document.getElementById("networkStrategy");
+      const visData = { nodes: nodes1, edges: edges1 };
+      network1 = new vis.Network(container, visData, { layout: { improvedLayout: true }, physics: { solver: "forceAtlas2Based" } });
+      network1.on("click", handleStrategyClick);
+    }
+    
+
+    function handleStrategyClick(params) {
+      if (params.nodes.length === 0) return;
+      const clicked = nodes1.get(params.nodes[0]);
+      if (clicked.role === "primary-root" || clicked.role === "secondary-root") {
+        const type = clicked.role.split("-")[0];
+        const keywords = dataCache[type] || [];
+        keywords.forEach((kw, i) => {
+          const id = 10 + i;
+          nodes1.add({
+            id,
+            label: kw,
+            shape: "ellipse",
+            color: type === "primary" ? "#4a90e2" : "#fdcb6e",
+            font: { color: type === "primary" ? "white" : "black", size: 16 },
+            role: "strategy-keyword",
+            type,
+            keyword: kw
+          });
+          edges1.add({ from: clicked.id, to: id });
+        });
+      } else if (clicked.role === "strategy-keyword") {
+        showStrategyTable(clicked.keyword, clicked.type);
+      }
+    }
+
+    function showStrategyTable(keyword, type) {
+      fetch(`/strategy_data/${mainDate}/${encodeURIComponent(keyword)}/${type}`)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("strategyTableContainer");
+          container.innerHTML = data.length ? renderHTMLTable(data) : "<p>No data found.</p>";
+        });
+    }
+
+    function renderMatchingCloud(keywords) {
+      nodes2 = new vis.DataSet([{ id: 0, label: "Cloud Volume", shape: "image", image: "/static/cloud.png", size: 70,
+        font: { color: "#333", size: 20, vadjust: -76, bold: true } }]);
+      edges2 = new vis.DataSet([]);
+      keywords.forEach((kw, i) => {
+        const id = i + 1;
+        nodes2.add({ id, label: `${kw.word}\n(${kw.volume})`, shape: "ellipse", color: "#6c5ce7", font: { color: "white", size: 16 }, role: "matching-keyword", keyword: kw.word });
+        edges2.add({ from: 0, to: id });
+      });
+      const container = document.getElementById("networkMatching");
+      network2 = new vis.Network(container, { nodes: nodes2, edges: edges2 }, { layout: { improvedLayout: true }, physics: { solver: "forceAtlas2Based" } });
+      network2.on("click", handleMatchingClick);
+    }
+
+    function handleMatchingClick(params) {
+      if (params.nodes.length === 0) return;
+      const clicked = nodes2.get(params.nodes[0]);
+      if (clicked.role === "matching-keyword") showMatchingTable(clicked.keyword);
+    }
+
+    function showMatchingTable(keyword) {
+      fetch('/get_table_data', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keyword, date: mainDate })
+      })
+      .then(res => res.json())
+      .then(data => {
+  console.log("Data received for matching table:", data);  // 🔍 ADD THIS LINE
+  const container = document.getElementById("matchingTableContainer");
+  container.innerHTML = data.rows?.length ? renderHTMLTable(data.rows) : "<p>No data found.</p>";
+});
+    }
+
+    function renderFrequencyCloud(keywords) {
+      nodes3 = new vis.DataSet([{ id: 0, label: "Search Cloud", shape: "image", image: "/static/cloud.png", size: 70, font: { color: "#333", size: 20, vadjust: -76, bold: true } }]);
+      edges3 = new vis.DataSet([]);
+      keywords.forEach((item, i) => {
+        const id = i + 1;
+        nodes3.add({ id, label: `${item.keyword}\n(${item.count})`, shape: "ellipse", color: "#00cec9", font: { color: "white", size: 16 }, role: "frequency-keyword", keyword: item.keyword });
+        edges3.add({ from: 0, to: id });
+      });
+      const container = document.getElementById("networkFrequency");
+      network3 = new vis.Network(container, { nodes: nodes3, edges: edges3 }, { layout: { improvedLayout: true }, physics: { solver: "forceAtlas2Based" } });
+      network3.on("click", handleFrequencyClick);
+    }
+
+    function handleFrequencyClick(params) {
+      if (params.nodes.length === 0) return;
+      const clicked = nodes3.get(params.nodes[0]);
+      if (clicked.role === "frequency-keyword") showFrequencyTable(clicked.keyword);
+    }
+
+    function showFrequencyTable(keyword) {
+      const found = frequencyResults.find(item => item.keyword === keyword.toLowerCase());
+      const sheet1Rows = found?.sheet1_rows || [], sheet2Rows = found?.sheet2_rows || [];
+      const container = document.getElementById("frequencyTableContainer");
+      container.innerHTML = "";
+      if (!sheet1Rows.length && !sheet2Rows.length) return container.innerHTML = "<p>No data found.</p>";
+      if (sheet1Rows.length) container.innerHTML += `<h3>Sheet 1: Jang Keywords</h3>` + renderHTMLTable(sheet1Rows);
+      if (sheet2Rows.length) container.innerHTML += `<h3>Sheet 2: Lifestyle Trends</h3>` + renderHTMLTable(sheet2Rows);
+    }
+
+    function renderHTMLTable(data) {
+      const headers = Object.keys(data[0]);
+      let html = "<table><thead><tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr></thead><tbody>";
+      data.forEach(row => { html += "<tr>" + headers.map(h => `<td>${row[h]}</td>`).join("") + "</tr>"; });
+      html += "</tbody></table>";
+      return html;
+    }
+  </script>
+</body>
+</html>

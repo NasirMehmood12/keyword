@@ -1,0 +1,10 @@
+Flask
+psycopg2-binary
+pandas
+openpyxl
+google-api-python-client
+pytz
+gunicorn
+gspread
+oauth2client
+

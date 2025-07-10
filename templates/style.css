@@ -1,0 +1,49 @@
+body {
+  font-family: sans-serif;
+  margin: 20px;
+  text-align: center;
+}
+
+.cloud-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.cloud {
+  background: #dceeff;
+  padding: 15px 25px;
+  border-radius: 40px;
+  border: 2px solid #89bce3;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.cloud:hover {
+  background: #bde0fe;
+  transform: scale(1.05);
+}
+
+.cloud-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.cloud-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.link-line {
+  width: 60px;
+  height: 2px;
+  background: #333;
+}

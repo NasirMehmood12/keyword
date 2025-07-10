@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stats</title>
+</head>
+<body>
+    {% set first_channel = all_data|dictsort(true)|first %}
+    {% set channel = first_channel[0] %}
+    {% set stats = first_channel[1] %}
+
+    <h2>{{ channel }}</h2>
+    <ul>
+        {% if stats['most_viewed'] %}
+            <li><strong>Most Viewed:</strong> {{ stats['most_viewed'][0] }} ({{ stats['most_viewed'][2] }} views)</li>
+        {% else %}
+            <li>No Most Viewed data.</li>
+        {% endif %}
+
+        {% if stats['least_viewed'] %}
+            <li><strong>Least Viewed:</strong> {{ stats['least_viewed'][0] }} ({{ stats['least_viewed'][2] }} views)</li>
+        {% else %}
+            <li>No Least Viewed data.</li>
+        {% endif %}
+
+        {% if stats['most_liked'] %}
+            <li><strong>Most Liked:</strong> {{ stats['most_liked'][0] }} ({{ stats['most_liked'][2] }} likes)</li>
+        {% else %}
+            <li>No Most Liked data.</li>
+        {% endif %}
+
+        {% if stats['least_liked'] %}
+            <li><strong>Least Liked:</strong> {{ stats['least_liked'][0] }} ({{ stats['least_liked'][2] }} likes)</li>
+        {% else %}
+            <li>No Least Liked data.</li>
+        {% endif %}
+    </ul>
+</body>
+</html>
