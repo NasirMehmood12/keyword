@@ -14,7 +14,7 @@ def register_keyword_routes3(app):
     # CORS(app)
 
     # --- Google Sheets Setup ---
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
 # Get the Google credentials JSON string from the environment variable
     creds_json = os.environ.get("GOOGLE_CREDS_JSON")
