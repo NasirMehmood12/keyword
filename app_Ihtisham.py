@@ -17,7 +17,15 @@ def register_keyword_routes2(app):
 
     # --- Google Sheets Setup ---
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("cred3.json", scope)
+
+# Get the Google credentials JSON string from the environment variable
+    creds_json = os.environ.get("GOOGLE_CREDS_JSON")
+
+# Convert the JSON string to a Python dictionary
+    creds_dict = json.loads(creds_json)
+
+# Authenticate with Google Sheets
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
 
     # --- Sheet URLs and Worksheet Names ---
