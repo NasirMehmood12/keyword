@@ -1,3 +1,6 @@
+import os
+import json
+
 def register_keyword_routes2(app):
     from flask import render_template, request, jsonify
 
