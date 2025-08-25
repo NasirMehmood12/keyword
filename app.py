@@ -95,7 +95,7 @@ def youtube():
 
 
 @app.route('/youtube2')
-def youtube():
+def youtube2():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
