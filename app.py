@@ -92,6 +92,27 @@ def youtube():
     except Exception as e:
         return f"Database error: {e}"
 
+
+
+@app.route('/youtube2')
+def youtube():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT name, subscribers, views, videos FROM youtube_stats_new order by subscribers desc")
+        stats_data = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        if not stats_data:
+            return render_template('youtube2.html', error="No data found")
+        return render_template('youtube2.html', stats_data=stats_data)
+    except Exception as e:
+        return f"Database error: {e}"
+
+
+
 @app.route('/facebook')
 def facebook():
     try:
