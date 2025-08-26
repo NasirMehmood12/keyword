@@ -484,6 +484,76 @@ def keyword_views():
             print(f"Database error: {db_error}")
 
 
+
+
+# -------------------------------------------------------------------------------------------------------------
+
+@app.route('/titles', methods=['GET', 'POST'])
+def titles():
+    channel_filter = request.args.get('channel', '').strip()
+    start_date = request.args.get('start', '').strip()
+    end_date = request.args.get('end', '').strip()
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        # Build WHERE conditions dynamically
+        conditions = []
+        params = []
+
+        if channel_filter:
+            conditions.append("channel = %s")
+            params.append(channel_filter)
+
+        if start_date:
+            conditions.append("published_time >= %s")
+            params.append(start_date)
+
+        if end_date:
+            conditions.append("published_time <= %s")
+            params.append(end_date)
+
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+        cur.execute(f"""
+            SELECT title, views, channel, published_time
+            FROM youtube_top_videos_new
+            {where_clause}
+            ORDER BY views DESC
+            LIMIT 200
+        """, params)
+
+        videos = cur.fetchall()
+
+        # Distinct channel names for filter dropdown
+        cur.execute("SELECT DISTINCT channel FROM youtube_top_videos_new ORDER BY channel")
+        channels = [row[0] for row in cur.fetchall()]
+
+        cur.close()
+        conn.close()
+
+        return render_template(
+            'title.html',
+            videos=videos,
+            channels=channels,
+            selected_channel=channel_filter,
+            start_date=start_date,
+            end_date=end_date
+        )
+
+    except Exception as e:
+        return f"Database error: {e}"
+
+
+        
+# -------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
         
         return render_template('keyword_views.html', channel_views=sorted_views, keyword=keyword, error=None)
 
