@@ -383,7 +383,7 @@
     <div class="row g-3 align-items-end">
       <div class="col-md-6">
         <label class="form-label text-dark">Channel</label>
-        <select class="form-select" name="channel">
+        <select class="form-select" name="channel_name">
           <option value="">All channels</option>
           {% for ch in channels %}
             <option value="{{ ch }}" {% if ch == selected_channel %}selected{% endif %}>{{ ch }}</option>
