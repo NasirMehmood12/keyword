@@ -522,7 +522,7 @@ def title_page():
         # Main data
         cur.execute(f"""
             SELECT title, views, channel, published_time
-            FROM youtube_top_videos
+            FROM youtube_top_videos_new
             {where_sql}
             ORDER BY views::bigint DESC
             LIMIT 300
@@ -530,7 +530,7 @@ def title_page():
         videos = cur.fetchall()
 
         # Channels for dropdown
-        cur.execute("SELECT DISTINCT channel FROM youtube_top_videos ORDER BY channel;")
+        cur.execute("SELECT DISTINCT channel FROM youtube_top_videos_new ORDER BY channel;")
         channels = [r[0] for r in cur.fetchall()]
 
         cur.close()
