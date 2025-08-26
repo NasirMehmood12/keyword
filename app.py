@@ -493,7 +493,7 @@ def keyword_views():
 
 @app.route('/title', methods=['GET'])
 def title_page():
-    channel = request.args.get('channel', '').strip()
+    channel = request.args.get('channel_name', '').strip()
     start = request.args.get('start', '').strip()   # YYYY-MM-DD
     end = request.args.get('end', '').strip()       # YYYY-MM-DD
 
@@ -506,8 +506,8 @@ def title_page():
         params = []
 
         if channel:
-            where.append("channel = %s")
-            params.append(channel)
+            where.append("channel_name = %s")
+            params.append(channel_name)
         if start:
             # inclusive start
             where.append("published_time >= %s")
@@ -521,7 +521,7 @@ def title_page():
 
         # Main data
         cur.execute(f"""
-            SELECT title, views, channel, published_time
+            SELECT title, views, channel_name, published_time
             FROM youtube_top_videos_new
             {where_sql}
             ORDER BY views::bigint DESC
