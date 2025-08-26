@@ -507,7 +507,7 @@ def title_page():
 
         if channel:
             where.append("channel_name = %s")
-            params.append(channel_name)
+            params.append(channel)
         if start:
             # inclusive start
             where.append("published_time >= %s")
