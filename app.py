@@ -491,98 +491,45 @@ def keyword_views():
 
 
 
-# @app.route('/title', methods=['GET'])
-# def title_page():
-#     channel = request.args.get('channel_name', '').strip()
-#     start = request.args.get('start', '').strip()   # YYYY-MM-DD
-#     end = request.args.get('end', '').strip()       # YYYY-MM-DD
-
-#     try:
-#         conn = get_db_connection()
-#         cur = conn.cursor()
-
-#         # Build dynamic WHERE
-#         where = []
-#         params = []
-
-#         if channel:
-#             where.append("channel_name = %s")
-#             params.append(channel_name)
-#         if start:
-#             # inclusive start
-#             where.append("published_time >= %s")
-#             params.append(start)
-#         if end:
-#             # inclusive end (end of day)
-#             where.append("published_time < (%s::date + INTERVAL '1 day')")
-#             params.append(end)
-
-#         where_sql = ("WHERE " + " AND ".join(where)) if where else ""
-
-#         # Main data
-#         cur.execute(f"""
-#             SELECT title, views, channel_name, published_time
-#             FROM youtube_top_videos_new
-#             {where_sql}
-#             ORDER BY views::bigint DESC
-#             LIMIT 300
-#         """, params)
-#         videos = cur.fetchall()
-
-#         # Channels for dropdown
-#         cur.execute("SELECT DISTINCT channel_name FROM youtube_top_videos_new ORDER BY channel_name;")
-#         channels = [r[0] for r in cur.fetchall()]
-
-#         cur.close()
-#         conn.close()
-
-#         return render_template(
-#             'title.html',
-#             videos=videos,
-#             channels=channels,
-#             selected_channel=channel,
-#             start_value=start,
-#             end_value=end,
-#             error=None
-#         )
-#     except Exception as e:
-#         return render_template('title.html', videos=[], channels=[], selected_channel="", start_value="", end_value="", error=str(e))
-
-
-
-
-
-
-
-
-
-
-
-
 @app.route('/title', methods=['GET'])
 def title_page():
     channel = request.args.get('channel_name', '').strip()
+    start = request.args.get('start', '').strip()   # YYYY-MM-DD
+    end = request.args.get('end', '').strip()       # YYYY-MM-DD
 
     try:
         conn = get_db_connection()
         cur = conn.cursor()
 
-        where = ""
+        # Build dynamic WHERE
+        where = []
         params = []
-        if channel:
-            where = "WHERE channel_name = %s"
-            params = [channel]
 
+        if channel:
+            where.append("channel_name = %s")
+            params.append(channel_name)
+        if start:
+            # inclusive start
+            where.append("published_time >= %s")
+            params.append(start)
+        if end:
+            # inclusive end (end of day)
+            where.append("published_time < (%s::date + INTERVAL '1 day')")
+            params.append(end)
+
+        where_sql = ("WHERE " + " AND ".join(where)) if where else ""
+
+        # Main data
         cur.execute(f"""
-            SELECT title, views, channel_name
+            SELECT title, views, channel_name, published_time
             FROM youtube_top_videos_new
-            {where}
+            {where_sql}
             ORDER BY views::bigint DESC
             LIMIT 300
         """, params)
         videos = cur.fetchall()
 
-        # Get distinct channels for dropdown
+        # Channels for dropdown
         cur.execute("SELECT DISTINCT channel_name FROM youtube_top_videos_new ORDER BY channel_name;")
         channels = [r[0] for r in cur.fetchall()]
 
@@ -594,17 +541,21 @@ def title_page():
             videos=videos,
             channels=channels,
             selected_channel=channel,
+            start_value=start,
+            end_value=end,
             error=None
         )
-
     except Exception as e:
-        return render_template(
-            'title.html',
-            videos=[],
-            channels=[],
-            selected_channel="",
-            error=str(e)
-        )
+        return render_template('title.html', videos=[], channels=[], selected_channel="", start_value="", end_value="", error=str(e))
+
+
+
+
+
+
+
+
+
 
 
 
