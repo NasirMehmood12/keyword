@@ -583,7 +583,7 @@ def title_page():
         videos = cur.fetchall()
 
         # Get distinct channels for dropdown
-        cur.execute("SELECT DISTINCT channel_name FROM youtube_top_videos_new ORDER BY channel;")
+        cur.execute("SELECT DISTINCT channel_name FROM youtube_top_videos_new ORDER BY channel_name;")
         channels = [r[0] for r in cur.fetchall()]
 
         cur.close()
