@@ -561,7 +561,7 @@ def keyword_views():
 
 @app.route('/title', methods=['GET'])
 def title_page():
-    channel = request.args.get('channel', '').strip()
+    channel = request.args.get('channel_name', '').strip()
 
     try:
         conn = get_db_connection()
@@ -570,12 +570,12 @@ def title_page():
         where = ""
         params = []
         if channel:
-            where = "WHERE channel = %s"
+            where = "WHERE channel_name = %s"
             params = [channel]
 
         cur.execute(f"""
-            SELECT title, views, channel
-            FROM youtube_top_videos
+            SELECT title, views, channel_name
+            FROM youtube_top_videos_new
             {where}
             ORDER BY views::bigint DESC
             LIMIT 300
@@ -583,7 +583,7 @@ def title_page():
         videos = cur.fetchall()
 
         # Get distinct channels for dropdown
-        cur.execute("SELECT DISTINCT channel FROM youtube_top_videos ORDER BY channel;")
+        cur.execute("SELECT DISTINCT channel_name FROM youtube_top_videos_new ORDER BY channel;")
         channels = [r[0] for r in cur.fetchall()]
 
         cur.close()
