@@ -81,7 +81,7 @@
   </div>
 
   <!-- FILTERS -->
-  <form class="filters" method="get" action="/title">
+<!--   <form class="filters" method="get" action="/title">
     <div class="row g-3 align-items-end">
       <div class="col-md-4">
         <label class="form-label text-dark">Channel</label>
@@ -104,7 +104,28 @@
         <button type="submit" class="btn btn-dark">Apply</button>
       </div>
     </div>
-  </form>
+  </form> -->
+
+
+
+  <form class="filters" method="get" action="/title">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label text-dark">Channel</label>
+      <select class="form-select" name="channel">
+        <option value="">All channels</option>
+        {% for ch in channels %}
+          <option value="{{ ch }}" {% if ch == selected_channel %}selected{% endif %}>{{ ch }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button type="submit" class="btn btn-dark">Apply</button>
+    </div>
+  </div>
+</form>
+
+  
 
   <div class="table-container">
     {% if error %}
@@ -113,7 +134,7 @@
       <div class="card shadow-sm">
         <div class="card-body p-0">
           <table class="table table-bordered table-hover table-striped m-0">
-            <thead>
+<!--             <thead>
               <tr>
                 <th>Title</th>
                 <th class="views">Views</th>
@@ -148,7 +169,39 @@
               {% if videos|length == 0 %}
                 <tr><td colspan="4" class="text-center text-muted">No results found for the selected filters.</td></tr>
               {% endif %}
-            </tbody>
+            </tbody> -->
+
+
+            <thead>
+  <tr>
+    <th>Title</th>
+    <th class="views">Views</th>
+    <th>Channel</th>
+  </tr>
+</thead>
+<tbody>
+  {% for v in videos %}
+    <tr>
+      <td>{{ v[0] }}</td>
+      <td class="views">
+        {% set vv = v[1] %}
+        {% if vv is string %}
+          {{ "{:,}".format(vv|replace(',', '')|int) }}
+        {% else %}
+          {{ "{:,}".format(vv|int) }}
+        {% endif %}
+      </td>
+      <td>{{ v[2] }}</td>
+    </tr>
+  {% endfor %}
+  {% if videos|length == 0 %}
+    <tr><td colspan="3" class="text-center text-muted">No results found.</td></tr>
+  {% endif %}
+</tbody>
+
+
+
+            
           </table>
         </div>
       </div>
