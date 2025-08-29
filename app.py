@@ -271,6 +271,11 @@ def download_excel(platform):
             columns = ['Page Name', 'Followers', 'Following', 'Posts']
             filename = 'instagram_stats.xlsx'
             sheet_name = 'Instagram Stats'
+        elif platform == 'youtube2':
+            cursor.execute("SELECT name, subscribers, views, videos FROM youtube_stats_new")
+            columns = ['title', 'subscribers', 'views', 'time']
+            filename = 'youtube2.xlsx'
+            sheet_name = 'YouTube new data'
             
         else:
             return "Invalid platform"
