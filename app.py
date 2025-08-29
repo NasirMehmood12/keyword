@@ -492,12 +492,10 @@ def keyword_views():
             conn.close()
         except Exception as db_error:
             print(f"Database error: {db_error}")
-        return render_template('keyword_views.html',
-                        channel_views=sorted_views,
-                        keyword=keyword,
-                        start_date=start_date_str,
-                        end_date=end_date_str,
-                        error=None)
+            
+        return render_template('keyword_views.html', channel_views=sorted_views, keyword=keyword, error=None)
+
+    return render_template('keyword_views.html', channel_views=None, keyword='', error=None)
 
 
 
@@ -585,9 +583,7 @@ def title_page():
 
 
         
-        return render_template('keyword_views.html', channel_views=sorted_views, keyword=keyword, error=None)
 
-    return render_template('keyword_views.html', channel_views=None, keyword='', error=None)
 
 
 
