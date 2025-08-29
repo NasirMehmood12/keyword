@@ -273,7 +273,7 @@ def download_excel(platform):
             sheet_name = 'Instagram Stats'
         elif platform == 'youtube2':
             cursor.execute("SELECT name, subscribers, views, videos FROM youtube_stats_new")
-            columns = ['title', 'subscribers', 'views', 'time']
+            columns = ['title', 'subscribers', 'views', 'videos']
             filename = 'youtube2.xlsx'
             sheet_name = 'YouTube new data'
         elif platform == 'title':
