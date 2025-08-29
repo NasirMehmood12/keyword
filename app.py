@@ -276,6 +276,11 @@ def download_excel(platform):
             columns = ['title', 'subscribers', 'views', 'time']
             filename = 'youtube2.xlsx'
             sheet_name = 'YouTube new data'
+         elif platform == 'title':
+            cursor.execute("SELECT title, views, channel_name, published_time FROM youtube_top_videos_new")
+            columns = ['title', 'views', 'channel_name', 'published_time']
+            filename = 'youtube_titles.xlsx'
+            sheet_name = 'YouTube new data'    
             
         else:
             return "Invalid platform"
