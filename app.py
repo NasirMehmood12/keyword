@@ -24,7 +24,7 @@ register_keyword_routes2(app)
 register_keyword_routes3(app)
 
 # YouTube API
-API_KEY = 'AIzaSyBMl7RI4kQyeedDS12kjM-YekY3TtKydH4'
+API_KEY = 'AIzaSyD_o5L2sQmHDTzgZbOWirQP2CcM0GQ7Tvw'
 youtube_key = build('youtube', 'v3', developerKey=API_KEY)
 
 # News channels dictionary
